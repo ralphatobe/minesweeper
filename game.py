@@ -38,12 +38,16 @@ class MinesweeperGame:
     self.player_board = np.full((self.board_height, self.board_width), -1, dtype=np.int)
     print(self.player_board)
 
+    # add rl parameters
+    self.frame_radius = 3
+
     # start the game
     self.run()
 
   def run(self):
     # iterate until a win or loss condition is triggered
     while True:
+      self.get_candidates()
       x, y, flag = self.check_input()
       if flag:
         self.flag_block(x, y)
@@ -130,6 +134,29 @@ class MinesweeperGame:
           self.player_board[y, x] = self.layer_mine[y, x]
     print(self.player_board)
 
+  def get_candidates(self):
+    candidates = []
+    unique_states = []
+    targets = np.where(self.layer_mask == 0)
+    for y, x in zip(targets[0], targets[1]):
+      # construct current state
+      state = np.full((self.frame_radius * 2 - 1, self.frame_radius * 2 - 1), -2, dtype=np.int)
+      for i in range(-self.frame_radius + 1, self.frame_radius):
+        for j in range(-self.frame_radius + 1, self.frame_radius):
+          if y + i in range(self.board_height) and x + j in range(self.board_width):
+            state[self.frame_radius + i - 1, self.frame_radius + j - 1] = self.player_board[y + i, x + j]
+      # check if current state is a duplicate of a discovered state
+      duplicate = False
+      for unique_state in unique_states:
+        if np.equal(unique_state, state).all():
+          duplicate = True
+          break
+      # add unique states to candidates
+      if not duplicate:
+        unique_states.append(state)
+        candidates.append((y, x, state))
+    print(len(unique_states))
+    return candidates
 
 
 if __name__ == "__main__":
