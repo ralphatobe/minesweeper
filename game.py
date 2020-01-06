@@ -118,9 +118,7 @@ class MinesweeperGame:
 
   def win_condition(self):
     # check if all non-mine tiles are revealed or all mine tiles are flagged
-    if np.sum(self.layer_mask) == (self.board_height * self.board_width) - self.num_mines or \
-       (np.where(self.player_board == -2)[0].shape == np.where(self.layer_mine == -1)[0].shape and \
-       np.equal(np.where(self.player_board == -2), np.where(self.layer_mine == -1)).all()):
+    if np.sum(self.layer_mask) == (self.board_height * self.board_width) - self.num_mines:
       print("\n", self.layer_mine)
       print("You win!")
       exit()
@@ -155,7 +153,6 @@ class MinesweeperGame:
       if not duplicate:
         unique_states.append(state)
         candidates.append((y, x, state))
-    print(len(unique_states))
     return candidates
 
 
